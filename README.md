@@ -1,7 +1,7 @@
 ContentEditable sandbox
 =======================
 
-Basic sandbox for playing around with content editable and discovering its crazy behaviour.
+Basic sandbox for playing around with contentEditable and discovering its crazy behaviour.
 
 Features:
 * Live edit raw HTML or ContentEditable output, which update each other as you type
