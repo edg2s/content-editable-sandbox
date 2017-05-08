@@ -52,11 +52,13 @@ $( function () {
 						$( '<a>' )
 							.attr( 'href', '#' )
 							.text( 'x' )
+							// eslint-disable-next-line no-use-before-define
 							.click( onDeleteClick ),
 						'] ',
 						$( '<a>' )
 							.attr( 'href', '#' )
 							.text( name )
+							// eslint-disable-next-line no-use-before-define
 							.click( onLoadClick ),
 						' ',
 						$( '<code>' ).text( savedStates[ name ].html.substr( 0, 40 ) + '...' ),
