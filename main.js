@@ -1,3 +1,5 @@
+/* eslint-disable no-alert */
+
 $( function () {
 
 	var currentHtml, currentCss,
@@ -144,11 +146,11 @@ $( function () {
 
 	$( '.save' ).click( function () {
 		var savedStates = loadSavedStates(),
-			name = window.prompt( 'Name this saved state' );
+			name = prompt( 'Name this saved state' );
 
 		if (
 			name !== null &&
-			( savedStates[ name ] === undefined || window.confirm( 'Overwrite existing state with this name?' ) )
+			( savedStates[ name ] === undefined || confirm( 'Overwrite existing state with this name?' ) )
 		) {
 			savedStates[ name ] = {
 				html: $( '.ce' ).html(),
@@ -160,7 +162,7 @@ $( function () {
 	} );
 
 	$( '.export' ).click( function () {
-		window.prompt( 'Copy the text below',
+		prompt( 'Copy the text below',
 			JSON.stringify( {
 				html: $( '.ce' ).html(),
 				css: $( '.css' ).val()
@@ -169,14 +171,14 @@ $( function () {
 	} );
 
 	$( '.import' ).click( function () {
-		var data, json = window.prompt( 'Paste the text below' );
+		var data, json = prompt( 'Paste the text below' );
 		if ( json === null ) {
 			return;
 		}
 		try {
 			data = JSON.parse( json );
 		} catch ( e ) {
-			window.alert( 'Invalid JSON' );
+			alert( 'Invalid JSON' );
 			return;
 		}
 		if ( data.html ) {
