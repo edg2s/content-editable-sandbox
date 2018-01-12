@@ -28,7 +28,7 @@ $( function () {
 	}
 
 	function setObject( key, value ) {
-		return localStorage.setItem( key, JSON.stringify( value ) );
+		return hasLocalStorage ? localStorage.setItem( key, JSON.stringify( value ) ) : null;
 	}
 
 	function getObject( key ) {
@@ -116,17 +116,13 @@ $( function () {
 	$( '.outline' ).change( function () {
 		var checked = $( this ).prop( 'checked' );
 		$( '.ce' ).toggleClass( 'outlined', checked );
-		if ( hasLocalStorage ) {
-			setObject( outlineKey, checked );
-		}
+		setObject( outlineKey, checked );
 	} );
 
 	$( '.editCss' ).change( function () {
 		var checked = $( this ).prop( 'checked' );
 		$( '.boxes' ).toggleClass( 'showCss', checked );
-		if ( hasLocalStorage ) {
-			setObject( editCssKey, checked );
-		}
+		setObject( editCssKey, checked );
 		updateCss( $( '.css' ).val() );
 	} );
 
