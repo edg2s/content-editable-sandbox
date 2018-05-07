@@ -4,27 +4,35 @@ $( function () {
 
 	var currentHtml, currentCss,
 		hasLocalStorage = !!window.localStorage,
-		currentHtmlKey = 'current-html',
 		savedStatesKey = 'saved-states',
+		currentHtmlKey = 'current-html',
 		currentCssKey = 'current-css',
-		editCssKey = 'edit-css',
-		outlineKey = 'show-outline';
+		$ce = $( '.ce' ),
+		$css = $( '.css' ),
+		$html = $( '.html' ),
+		$style = $( '.style' ),
+		$outline = $( '.outline' ),
+		$editCss = $( '.editCss' ),
+		$clear = $( '.clear' ),
+		$save = $( '.save' ),
+		$export = $( '.export' ),
+		$import = $( '.import' );
 
 	function store() {
 		if ( hasLocalStorage ) {
-			localStorage.setItem( currentHtmlKey, $( '.ce' ).html() );
-			localStorage.setItem( currentCssKey, $( '.css' ).val() );
+			localStorage.setItem( currentHtmlKey, $ce.html() );
+			localStorage.setItem( currentCssKey, $css.val() );
 		}
 	}
 
 	function updateHtml( html ) {
-		$( '.html' ).val( html );
-		$( '.ce' ).html( html );
+		$html.val( html );
+		$ce.html( html );
 	}
 
 	function updateCss( css ) {
-		$( '.css' ).val( css );
-		$( '.style' ).html( $( '.editCss' ).prop( 'checked' ) ? css : '' );
+		$css.val( css );
+		$style.html( $editCss.prop( 'checked' ) ? css : '' );
 	}
 
 	function setObject( key, value ) {
@@ -40,7 +48,8 @@ $( function () {
 	}
 
 	function listSavedStates() {
-		var name, count, savedStates, $ul;
+		var name, count, savedStates, $ul,
+			$savedStates = $( '.savedStates' );
 
 		if ( hasLocalStorage ) {
 			count = 0;
@@ -55,13 +64,13 @@ $( function () {
 							.attr( 'href', '#' )
 							.text( 'x' )
 							// eslint-disable-next-line no-use-before-define
-							.click( onDeleteClick ),
+							.on( 'click', onDeleteClick ),
 						'] ',
 						$( '<a>' )
 							.attr( 'href', '#' )
 							.text( name )
 							// eslint-disable-next-line no-use-before-define
-							.click( onLoadClick ),
+							.on( 'click', onLoadClick ),
 						' ',
 						$( '<code>' ).text( savedStates[ name ].html.substr( 0, 40 ) + '...' ),
 						' ',
@@ -72,9 +81,9 @@ $( function () {
 				count++;
 			}
 			if ( count ) {
-				$( '.savedStates' ).html( $ul );
+				$savedStates.html( $ul );
 			} else {
-				$( '.savedStates' ).html( '<em>No saved states</em>' );
+				$savedStates.html( '<em>No saved states</em>' );
 			}
 		}
 	}
@@ -98,49 +107,51 @@ $( function () {
 		listSavedStates();
 	}
 
-	$( '.ce' ).on( 'input keyup', function () {
-		$( '.html' ).val( $( '.ce' ).html() );
+	$ce.on( 'input keyup', function () {
+		$html.val( $ce.html() );
 		store();
 	} );
 
-	$( '.html' ).on( 'input keyup', function () {
-		$( '.ce' ).html( $( '.html' ).val() );
+	$html.on( 'input keyup', function () {
+		$ce.html( $html.val() );
 		store();
 	} );
 
-	$( '.css' ).keyup( function () {
-		$( '.style' ).html( $( '.css' ).val() );
+	$css.keyup( function () {
+		$style.html( $css.val() );
 		store();
 	} );
 
-	$( '.outline' ).change( function () {
-		var checked = $( this ).prop( 'checked' );
-		$( '.ce' ).toggleClass( 'outlined', checked );
-		setObject( outlineKey, checked );
-	} );
-
-	$( '.editCss' ).change( function () {
-		var checked = $( this ).prop( 'checked' );
-		$( '.boxes' ).toggleClass( 'showCss', checked );
-		setObject( editCssKey, checked );
-		updateCss( $( '.css' ).val() );
-	} );
-
-	if ( getObject( outlineKey ) !== null ) {
-		$( '.outline' ).prop( 'checked', getObject( outlineKey ) ).trigger( 'change' );
+	function persistCheckbox( key, $checkbox ) {
+		var val = getObject( key );
+		$checkbox.on( 'change', function () {
+			var checked = $checkbox.prop( 'checked' );
+			setObject( key, checked );
+		} );
+		if ( val !== null ) {
+			$checkbox.prop( 'checked', val ).trigger( 'change' );
+		}
 	}
 
-	if ( getObject( editCssKey ) !== null ) {
-		$( '.editCss' ).prop( 'checked', getObject( editCssKey ) ).trigger( 'change' );
-	}
+	persistCheckbox( 'show-outline', $outline );
+	persistCheckbox( 'edit-css', $editCss );
 
-	$( '.clear' ).click( function () {
+	$outline.on( 'change', function () {
+		$ce.toggleClass( 'outlined', $( this ).prop( 'checked' ) );
+	} );
+
+	$editCss.on( 'change', function () {
+		$( '.boxes' ).toggleClass( 'showCss', $( this ).prop( 'checked' ) );
+		updateCss( $css.val() );
+	} );
+
+	$clear.on( 'click', function () {
 		updateHtml( '' );
 		updateCss( '' );
 		store();
 	} );
 
-	$( '.save' ).click( function () {
+	$save.on( 'click', function () {
 		var savedStates = loadSavedStates(),
 			name = prompt( 'Name this saved state' );
 
@@ -149,24 +160,24 @@ $( function () {
 			( savedStates[ name ] === undefined || confirm( 'Overwrite existing state with this name?' ) )
 		) {
 			savedStates[ name ] = {
-				html: $( '.ce' ).html(),
-				css: $( '.css' ).val()
+				html: $ce.html(),
+				css: $css.val()
 			};
 			setObject( savedStatesKey, savedStates );
 			listSavedStates();
 		}
 	} );
 
-	$( '.export' ).click( function () {
+	$export.on( 'click', function () {
 		prompt( 'Copy the text below',
 			JSON.stringify( {
-				html: $( '.ce' ).html(),
-				css: $( '.css' ).val()
+				html: $ce.html(),
+				css: $css.val()
 			} )
 		);
 	} );
 
-	$( '.import' ).click( function () {
+	$import.on( 'click', function () {
 		var data, json = prompt( 'Paste the text below' );
 		if ( json === null ) {
 			return;
