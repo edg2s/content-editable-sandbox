@@ -13,6 +13,7 @@ $( function () {
 		$style = $( '.style' ),
 		$outline = $( '.outline' ),
 		$editCss = $( '.editCss' ),
+		$formatHtml = $( '.formatHtml' ),
 		$clear = $( '.clear' ),
 		$save = $( '.save' ),
 		$export = $( '.export' ),
@@ -26,7 +27,13 @@ $( function () {
 	}
 
 	function updateHtml( html ) {
-		$html.val( html );
+		$html.val(
+			$formatHtml.prop( 'checked' ) ?
+				html_beautify( html ) : html
+		);
+	}
+
+	function updateCe( html ) {
 		$ce.html( html );
 	}
 
@@ -94,6 +101,7 @@ $( function () {
 
 		if ( savedStates[ name ] ) {
 			updateHtml( savedStates[ name ].html );
+			updateCe( savedStates[ name ].html );
 			updateCss( savedStates[ name ].css );
 		}
 	}
@@ -108,7 +116,7 @@ $( function () {
 	}
 
 	$ce.on( 'input keyup', function () {
-		$html.val( $ce.html() );
+		updateHtml( $ce.html() );
 		store();
 	} );
 
@@ -135,6 +143,7 @@ $( function () {
 
 	persistCheckbox( 'show-outline', $outline );
 	persistCheckbox( 'edit-css', $editCss );
+	persistCheckbox( 'format-html', $formatHtml );
 
 	$outline.on( 'change', function () {
 		$ce.toggleClass( 'outlined', $( this ).prop( 'checked' ) );
@@ -145,8 +154,13 @@ $( function () {
 		updateCss( $css.val() );
 	} );
 
+	$formatHtml.on( 'change', function () {
+		updateHtml( $ce.html() );
+	} );
+
 	$clear.on( 'click', function () {
 		updateHtml( '' );
+		updateCe( '' );
 		updateCss( '' );
 		store();
 	} );
@@ -190,6 +204,7 @@ $( function () {
 		}
 		if ( data.html ) {
 			updateHtml( data.html );
+			updateCe( data.html );
 		}
 		if ( data.css ) {
 			updateCss( data.css );
@@ -200,6 +215,7 @@ $( function () {
 		currentHtml = localStorage.getItem( currentHtmlKey );
 		if ( currentHtml !== null ) {
 			updateHtml( currentHtml );
+			updateCe( currentHtml );
 		}
 		currentCss = localStorage.getItem( currentCssKey );
 		if ( currentCss !== null ) {
