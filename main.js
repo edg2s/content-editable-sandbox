@@ -147,12 +147,12 @@ $( function () {
 
 	$outline.on( 'change', function () {
 		$ce.toggleClass( 'outlined', $( this ).prop( 'checked' ) );
-	} );
+	} ).trigger( 'change' );
 
 	$editCss.on( 'change', function () {
 		$( '.boxes' ).toggleClass( 'showCss', $( this ).prop( 'checked' ) );
 		updateCss( $css.val() );
-	} );
+	} ).trigger( 'change' );
 
 	$formatHtml.on( 'change', function () {
 		updateHtml( $ce.html() );
