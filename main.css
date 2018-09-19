@@ -9,8 +9,12 @@ body {
 	padding: 2px;
 	min-height: 500px;
 	border: 1px solid #999;
-	font-family: monospace;
 	box-sizing: border-box;
+}
+
+.html,
+.css {
+	font-family: monospace;
 }
 
 .showCss .box {
