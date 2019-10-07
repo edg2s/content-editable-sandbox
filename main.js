@@ -1,4 +1,4 @@
-/* eslint-disable no-alert */
+/* eslint-disable no-alert, no-jquery/no-global-selector */
 
 $( function () {
 
@@ -90,7 +90,7 @@ $( function () {
 			if ( count ) {
 				$savedStates.html( $ul );
 			} else {
-				$savedStates.html( '<em>No saved states</em>' );
+				$savedStates.append( $( '<em>' ).text( 'No saved states' ) );
 			}
 		}
 	}
@@ -125,7 +125,7 @@ $( function () {
 		store();
 	} );
 
-	$css.keyup( function () {
+	$css.on( 'keyup', function () {
 		$style.html( $css.val() );
 		store();
 	} );
