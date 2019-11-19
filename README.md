@@ -8,4 +8,4 @@ Features:
 * Optional HTML outline mode
 * State persisted in local storage
 
-Demo: http://edg2s.github.io/content-editable-sandbox/
+Demo: https://edg2s.github.io/content-editable-sandbox/
