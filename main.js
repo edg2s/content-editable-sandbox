@@ -2,8 +2,7 @@
 
 $( function () {
 
-	var currentHtml, currentCss,
-		hasLocalStorage = !!window.localStorage,
+	var hasLocalStorage = !!window.localStorage,
 		savedStatesKey = 'saved-states',
 		currentHtmlKey = 'current-html',
 		currentCssKey = 'current-css',
@@ -55,15 +54,14 @@ $( function () {
 	}
 
 	function listSavedStates() {
-		var name, count, savedStates, $ul,
-			$savedStates = $( '.savedStates' );
+		var $savedStates = $( '.savedStates' );
 
 		if ( hasLocalStorage ) {
-			count = 0;
-			savedStates = loadSavedStates();
-			$ul = $( '<ul>' );
+			var count = 0;
+			var savedStates = loadSavedStates();
+			var $ul = $( '<ul>' );
 
-			for ( name in savedStates ) {
+			for ( var name in savedStates ) {
 				$ul.append(
 					$( '<li>' ).append(
 						'[',
@@ -192,10 +190,11 @@ $( function () {
 	} );
 
 	$import.on( 'click', function () {
-		var data, json = prompt( 'Paste the text below' );
+		var json = prompt( 'Paste the text below' );
 		if ( json === null ) {
 			return;
 		}
+		var data;
 		try {
 			data = JSON.parse( json );
 		} catch ( e ) {
@@ -212,12 +211,12 @@ $( function () {
 	} );
 
 	if ( hasLocalStorage ) {
-		currentHtml = localStorage.getItem( currentHtmlKey );
+		var currentHtml = localStorage.getItem( currentHtmlKey );
 		if ( currentHtml !== null ) {
 			updateHtml( currentHtml );
 			updateCe( currentHtml );
 		}
-		currentCss = localStorage.getItem( currentCssKey );
+		var currentCss = localStorage.getItem( currentCssKey );
 		if ( currentCss !== null ) {
 			updateCss( currentCss );
 		}
