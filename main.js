@@ -2,8 +2,7 @@
 
 $( function () {
 
-	var hasLocalStorage = !!window.localStorage,
-		savedStatesKey = 'saved-states',
+	const savedStatesKey = 'saved-states',
 		currentHtmlKey = 'current-html',
 		currentCssKey = 'current-css',
 		$ce = $( '.ce' ),
@@ -19,10 +18,8 @@ $( function () {
 		$import = $( '.import' );
 
 	function store() {
-		if ( hasLocalStorage ) {
-			localStorage.setItem( currentHtmlKey, $ce.html() );
-			localStorage.setItem( currentCssKey, $css.val() );
-		}
+		localStorage.setItem( currentHtmlKey, $ce.html() );
+		localStorage.setItem( currentCssKey, $css.val() );
 	}
 
 	function updateHtml( html ) {
@@ -42,7 +39,7 @@ $( function () {
 	}
 
 	function setObject( key, value ) {
-		return hasLocalStorage ? localStorage.setItem( key, JSON.stringify( value ) ) : null;
+		return localStorage.setItem( key, JSON.stringify( value ) );
 	}
 
 	function getObject( key ) {
@@ -54,47 +51,45 @@ $( function () {
 	}
 
 	function listSavedStates() {
-		var $savedStates = $( '.savedStates' );
+		const $savedStates = $( '.savedStates' );
 
-		if ( hasLocalStorage ) {
-			var count = 0;
-			var savedStates = loadSavedStates();
-			var $ul = $( '<ul>' );
+		let count = 0;
+		const savedStates = loadSavedStates();
+		const $ul = $( '<ul>' );
 
-			for ( var name in savedStates ) {
-				$ul.append(
-					$( '<li>' ).append(
-						'[',
-						$( '<a>' )
-							.attr( 'href', '#' )
-							.text( 'x' )
+		for ( const name in savedStates ) {
+			$ul.append(
+				$( '<li>' ).append(
+					'[',
+					$( '<a>' )
+						.attr( 'href', '#' )
+						.text( 'x' )
 
-							.on( 'click', onDeleteClick ),
-						'] ',
-						$( '<a>' )
-							.attr( 'href', '#' )
-							.text( name )
+						.on( 'click', onDeleteClick ),
+					'] ',
+					$( '<a>' )
+						.attr( 'href', '#' )
+						.text( name )
 
-							.on( 'click', onLoadClick ),
-						' ',
-						$( '<code>' ).text( savedStates[ name ].html.slice( 0, 40 ) + '...' ),
-						' ',
-						savedStates[ name ].css ?
-							$( '<code>' ).text( savedStates[ name ].css.slice( 0, 40 ) + '...' ) : ''
-					).data( 'name', name )
-				);
-				count++;
-			}
-			if ( count ) {
-				$savedStates.html( $ul );
-			} else {
-				$savedStates.append( $( '<em>' ).text( 'No saved states' ) );
-			}
+						.on( 'click', onLoadClick ),
+					' ',
+					$( '<code>' ).text( savedStates[ name ].html.slice( 0, 40 ) + '...' ),
+					' ',
+					savedStates[ name ].css ?
+						$( '<code>' ).text( savedStates[ name ].css.slice( 0, 40 ) + '...' ) : ''
+				).data( 'name', name )
+			);
+			count++;
+		}
+		if ( count ) {
+			$savedStates.html( $ul );
+		} else {
+			$savedStates.append( $( '<em>' ).text( 'No saved states' ) );
 		}
 	}
 
 	function onLoadClick() {
-		var name = $( this ).closest( 'li' ).data( 'name' ),
+		const name = $( this ).closest( 'li' ).data( 'name' ),
 			savedStates = loadSavedStates();
 
 		if ( savedStates[ name ] ) {
@@ -105,7 +100,7 @@ $( function () {
 	}
 
 	function onDeleteClick() {
-		var name = $( this ).closest( 'li' ).data( 'name' ),
+		const name = $( this ).closest( 'li' ).data( 'name' ),
 			savedStates = loadSavedStates();
 
 		delete savedStates[ name ];
@@ -129,9 +124,9 @@ $( function () {
 	} );
 
 	function persistCheckbox( key, $checkbox ) {
-		var val = getObject( key );
+		const val = getObject( key );
 		$checkbox.on( 'change', function () {
-			var checked = $checkbox.prop( 'checked' );
+			const checked = $checkbox.prop( 'checked' );
 			setObject( key, checked );
 		} );
 		if ( val !== null ) {
@@ -164,7 +159,7 @@ $( function () {
 	} );
 
 	$save.on( 'click', function () {
-		var savedStates = loadSavedStates(),
+		const savedStates = loadSavedStates(),
 			name = prompt( 'Name this saved state' );
 
 		if (
@@ -190,11 +185,11 @@ $( function () {
 	} );
 
 	$import.on( 'click', function () {
-		var json = prompt( 'Paste the text below' );
+		const json = prompt( 'Paste the text below' );
 		if ( json === null ) {
 			return;
 		}
-		var data;
+		let data;
 		try {
 			data = JSON.parse( json );
 		} catch ( e ) {
@@ -210,19 +205,15 @@ $( function () {
 		}
 	} );
 
-	if ( hasLocalStorage ) {
-		var currentHtml = localStorage.getItem( currentHtmlKey );
-		if ( currentHtml !== null ) {
-			updateHtml( currentHtml );
-			updateCe( currentHtml );
-		}
-		var currentCss = localStorage.getItem( currentCssKey );
-		if ( currentCss !== null ) {
-			updateCss( currentCss );
-		}
-		listSavedStates();
-	} else {
-		$( '.save, .saved' ).hide();
+	const currentHtml = localStorage.getItem( currentHtmlKey );
+	if ( currentHtml !== null ) {
+		updateHtml( currentHtml );
+		updateCe( currentHtml );
 	}
+	const currentCss = localStorage.getItem( currentCssKey );
+	if ( currentCss !== null ) {
+		updateCss( currentCss );
+	}
+	listSavedStates();
 
 } );
