@@ -1,6 +1,6 @@
 /* eslint-disable no-alert, no-jquery/no-global-selector */
 
-$( function () {
+$( () => {
 
 	const savedStatesKey = 'saved-states',
 		currentHtmlKey = 'current-html',
@@ -88,8 +88,8 @@ $( function () {
 		}
 	}
 
-	function onLoadClick() {
-		const name = $( this ).closest( 'li' ).data( 'name' ),
+	function onLoadClick( e ) {
+		const name = $( e.target ).closest( 'li' ).data( 'name' ),
 			savedStates = loadSavedStates();
 
 		if ( savedStates[ name ] ) {
@@ -99,8 +99,8 @@ $( function () {
 		}
 	}
 
-	function onDeleteClick() {
-		const name = $( this ).closest( 'li' ).data( 'name' ),
+	function onDeleteClick( e ) {
+		const name = $( e.target ).closest( 'li' ).data( 'name' ),
 			savedStates = loadSavedStates();
 
 		delete savedStates[ name ];
@@ -108,24 +108,24 @@ $( function () {
 		listSavedStates();
 	}
 
-	$ce.on( 'input keyup', function () {
+	$ce.on( 'input keyup', () => {
 		updateHtml( $ce.html() );
 		store();
 	} );
 
-	$html.on( 'input keyup', function () {
+	$html.on( 'input keyup', () => {
 		$ce.html( $html.val() );
 		store();
 	} );
 
-	$css.on( 'keyup', function () {
+	$css.on( 'keyup', () => {
 		$style.html( $css.val() );
 		store();
 	} );
 
 	function persistCheckbox( key, $checkbox ) {
 		const val = getObject( key );
-		$checkbox.on( 'change', function () {
+		$checkbox.on( 'change', () => {
 			const checked = $checkbox.prop( 'checked' );
 			setObject( key, checked );
 		} );
@@ -138,27 +138,27 @@ $( function () {
 	persistCheckbox( 'edit-css', $editCss );
 	persistCheckbox( 'format-html', $formatHtml );
 
-	$outline.on( 'change', function () {
-		$ce.toggleClass( 'outlined', $( this ).prop( 'checked' ) );
+	$outline.on( 'change', ( e ) => {
+		$ce.toggleClass( 'outlined', $( e.target ).prop( 'checked' ) );
 	} ).trigger( 'change' );
 
-	$editCss.on( 'change', function () {
-		$( '.boxes' ).toggleClass( 'showCss', $( this ).prop( 'checked' ) );
+	$editCss.on( 'change', ( e ) => {
+		$( '.boxes' ).toggleClass( 'showCss', $( e.target ).prop( 'checked' ) );
 		updateCss( $css.val() );
 	} ).trigger( 'change' );
 
-	$formatHtml.on( 'change', function () {
+	$formatHtml.on( 'change', () => {
 		updateHtml( $ce.html() );
 	} );
 
-	$clear.on( 'click', function () {
+	$clear.on( 'click', () => {
 		updateHtml( '' );
 		updateCe( '' );
 		updateCss( '' );
 		store();
 	} );
 
-	$save.on( 'click', function () {
+	$save.on( 'click', () => {
 		const savedStates = loadSavedStates(),
 			name = prompt( 'Name this saved state' );
 
@@ -175,7 +175,7 @@ $( function () {
 		}
 	} );
 
-	$export.on( 'click', function () {
+	$export.on( 'click', () => {
 		prompt( 'Copy the text below',
 			JSON.stringify( {
 				html: $ce.html(),
@@ -184,7 +184,7 @@ $( function () {
 		);
 	} );
 
-	$import.on( 'click', function () {
+	$import.on( 'click', () => {
 		const json = prompt( 'Paste the text below' );
 		if ( json === null ) {
 			return;
