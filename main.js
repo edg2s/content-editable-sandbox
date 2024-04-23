@@ -51,7 +51,7 @@ $( () => {
 	}
 
 	function listSavedStates() {
-		const $savedStates = $( '.savedStates' );
+		const $savedStates = $( '.savedStates' ).empty();
 
 		let count = 0;
 		const savedStates = loadSavedStates();
@@ -64,13 +64,11 @@ $( () => {
 					$( '<a>' )
 						.attr( 'href', '#' )
 						.text( 'x' )
-
 						.on( 'click', onDeleteClick ),
 					'] ',
 					$( '<a>' )
 						.attr( 'href', '#' )
 						.text( name )
-
 						.on( 'click', onLoadClick ),
 					' ',
 					$( '<code>' ).text( savedStates[ name ].html.slice( 0, 40 ) + '...' ),
@@ -82,7 +80,7 @@ $( () => {
 			count++;
 		}
 		if ( count ) {
-			$savedStates.html( $ul );
+			$savedStates.append( $ul );
 		} else {
 			$savedStates.append( $( '<em>' ).text( 'No saved states' ) );
 		}
