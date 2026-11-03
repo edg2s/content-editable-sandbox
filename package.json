@@ -5,7 +5,8 @@
 	"license": "MIT",
 	"author": "Ed Sanders",
 	"scripts": {
-		"test": "eslint . && stylelint *.css"
+		"test": "eslint . && stylelint *.css",
+		"update-lib": "npm install --no-save jquery@4.0.0 js-beautify@2.0.3 && mkdir -p lib && cp node_modules/jquery/dist/jquery.min.js node_modules/jquery/dist/jquery.min.map lib/ && grep -v sourceMappingURL node_modules/js-beautify/js/lib/beautifier.min.js > lib/beautifier.min.js"
 	},
 	"devDependencies": {
 		"eslint-config-wikimedia": "0.32.6",

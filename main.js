@@ -25,7 +25,7 @@ $( () => {
 	function updateHtml( html ) {
 		$html.val(
 			$formatHtml.prop( 'checked' ) ?
-				html_beautify( html ) : html
+				beautifier.html( html ) : html
 		);
 	}
 
