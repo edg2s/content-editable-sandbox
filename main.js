@@ -17,9 +17,26 @@ $( () => {
 		$export = $( '.export' ),
 		$import = $( '.import' );
 
+	// localStorage can throw if storage is disabled or full
+	function getItem( key ) {
+		try {
+			return localStorage.getItem( key );
+		} catch ( e ) {
+			return null;
+		}
+	}
+
+	function setItem( key, value ) {
+		try {
+			localStorage.setItem( key, value );
+		} catch ( e ) {
+			// Storage unavailable, state won't be persisted
+		}
+	}
+
 	function store() {
-		localStorage.setItem( currentHtmlKey, $ce.html() );
-		localStorage.setItem( currentCssKey, $css.val() );
+		setItem( currentHtmlKey, $ce.html() );
+		setItem( currentCssKey, $css.val() );
 	}
 
 	function updateHtml( html ) {
@@ -39,25 +56,39 @@ $( () => {
 	}
 
 	function setObject( key, value ) {
-		return localStorage.setItem( key, JSON.stringify( value ) );
+		setItem( key, JSON.stringify( value ) );
 	}
 
 	function getObject( key ) {
-		return JSON.parse( localStorage.getItem( key ) || 'null' );
+		try {
+			return JSON.parse( getItem( key ) || 'null' );
+		} catch ( e ) {
+			return null;
+		}
 	}
 
 	function loadSavedStates() {
-		return getObject( savedStatesKey ) || {};
+		// Use a null-prototype object so names like "__proto__" or
+		// "toString" are treated as ordinary keys
+		return Object.assign( Object.create( null ), getObject( savedStatesKey ) );
+	}
+
+	function truncate( text ) {
+		return text.length > 40 ? text.slice( 0, 40 ) + '...' : text;
 	}
 
 	function listSavedStates() {
-		const $savedStates = $( '.savedStates' ).empty();
+		const $savedStates = $( '.savedStates' ).empty(),
+			savedStates = loadSavedStates(),
+			names = Object.keys( savedStates );
 
-		let count = 0;
-		const savedStates = loadSavedStates();
+		if ( !names.length ) {
+			$savedStates.append( $( '<em>' ).text( 'No saved states' ) );
+			return;
+		}
+
 		const $ul = $( '<ul>' );
-
-		for ( const name in savedStates ) {
+		names.forEach( ( name ) => {
 			$ul.append(
 				$( '<li>' ).append(
 					'[',
@@ -71,33 +102,31 @@ $( () => {
 						.text( name )
 						.on( 'click', onLoadClick ),
 					' ',
-					$( '<code>' ).text( savedStates[ name ].html.slice( 0, 40 ) + '...' ),
+					$( '<code>' ).text( truncate( savedStates[ name ].html ) ),
 					' ',
 					savedStates[ name ].css ?
-						$( '<code>' ).text( savedStates[ name ].css.slice( 0, 40 ) + '...' ) : ''
+						$( '<code>' ).text( truncate( savedStates[ name ].css ) ) : ''
 				).data( 'name', name )
 			);
-			count++;
-		}
-		if ( count ) {
-			$savedStates.append( $ul );
-		} else {
-			$savedStates.append( $( '<em>' ).text( 'No saved states' ) );
-		}
+		} );
+		$savedStates.append( $ul );
 	}
 
 	function onLoadClick( e ) {
+		e.preventDefault();
 		const name = $( e.target ).closest( 'li' ).data( 'name' ),
 			savedStates = loadSavedStates();
 
 		if ( savedStates[ name ] ) {
 			updateHtml( savedStates[ name ].html );
 			updateCe( savedStates[ name ].html );
-			updateCss( savedStates[ name ].css );
+			updateCss( savedStates[ name ].css || '' );
+			store();
 		}
 	}
 
 	function onDeleteClick( e ) {
+		e.preventDefault();
 		const name = $( e.target ).closest( 'li' ).data( 'name' ),
 			savedStates = loadSavedStates();
 
@@ -106,48 +135,48 @@ $( () => {
 		listSavedStates();
 	}
 
-	$ce.on( 'input keyup', () => {
+	$ce.on( 'input', () => {
 		updateHtml( $ce.html() );
 		store();
 	} );
 
-	$html.on( 'input keyup', () => {
+	$html.on( 'input', () => {
 		$ce.html( $html.val() );
 		store();
 	} );
 
-	$css.on( 'keyup', () => {
+	$css.on( 'input', () => {
 		$style.html( $css.val() );
 		store();
 	} );
 
+	$outline.on( 'change', ( e ) => {
+		$ce.toggleClass( 'outlined', $( e.target ).prop( 'checked' ) );
+	} );
+
+	$editCss.on( 'change', ( e ) => {
+		$( '.boxes' ).toggleClass( 'showCss', $( e.target ).prop( 'checked' ) );
+		updateCss( $css.val() );
+	} );
+
+	$formatHtml.on( 'change', () => {
+		updateHtml( $ce.html() );
+	} );
+
 	function persistCheckbox( key, $checkbox ) {
 		const val = getObject( key );
-		$checkbox.on( 'change', () => {
-			const checked = $checkbox.prop( 'checked' );
-			setObject( key, checked );
-		} );
 		if ( val !== null ) {
-			$checkbox.prop( 'checked', val ).trigger( 'change' );
+			$checkbox.prop( 'checked', val );
 		}
+		// Apply the initial state before listening for changes to persist
+		$checkbox.trigger( 'change' ).on( 'change', () => {
+			setObject( key, $checkbox.prop( 'checked' ) );
+		} );
 	}
 
 	persistCheckbox( 'show-outline', $outline );
 	persistCheckbox( 'edit-css', $editCss );
 	persistCheckbox( 'format-html', $formatHtml );
-
-	$outline.on( 'change', ( e ) => {
-		$ce.toggleClass( 'outlined', $( e.target ).prop( 'checked' ) );
-	} ).trigger( 'change' );
-
-	$editCss.on( 'change', ( e ) => {
-		$( '.boxes' ).toggleClass( 'showCss', $( e.target ).prop( 'checked' ) );
-		updateCss( $css.val() );
-	} ).trigger( 'change' );
-
-	$formatHtml.on( 'change', () => {
-		updateHtml( $ce.html() );
-	} );
 
 	$clear.on( 'click', () => {
 		updateHtml( '' );
@@ -160,10 +189,10 @@ $( () => {
 		const savedStates = loadSavedStates(),
 			name = prompt( 'Name this saved state' );
 
-		if (
-			name !== null &&
-			( savedStates[ name ] === undefined || confirm( 'Overwrite existing state with this name?' ) )
-		) {
+		if ( !name ) {
+			return;
+		}
+		if ( savedStates[ name ] === undefined || confirm( 'Overwrite existing state with this name?' ) ) {
 			savedStates[ name ] = {
 				html: $ce.html(),
 				css: $css.val()
@@ -194,21 +223,26 @@ $( () => {
 			alert( 'Invalid JSON' );
 			return;
 		}
-		if ( data.html ) {
+		if ( !data || typeof data !== 'object' ) {
+			alert( 'Invalid data' );
+			return;
+		}
+		if ( typeof data.html === 'string' ) {
 			updateHtml( data.html );
 			updateCe( data.html );
 		}
-		if ( data.css ) {
+		if ( typeof data.css === 'string' ) {
 			updateCss( data.css );
 		}
+		store();
 	} );
 
-	const currentHtml = localStorage.getItem( currentHtmlKey );
+	const currentHtml = getItem( currentHtmlKey );
 	if ( currentHtml !== null ) {
 		updateHtml( currentHtml );
 		updateCe( currentHtml );
 	}
-	const currentCss = localStorage.getItem( currentCssKey );
+	const currentCss = getItem( currentCssKey );
 	if ( currentCss !== null ) {
 		updateCss( currentCss );
 	}

@@ -8,4 +8,6 @@ Features:
 * Optional HTML outline mode
 * State persisted in local storage
 
+Note: HTML is inserted as-is, so any scripts or event handlers it contains will run. Only import states from people you trust.
+
 Demo: https://edg2s.github.io/content-editable-sandbox/
